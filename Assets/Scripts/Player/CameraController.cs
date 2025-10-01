@@ -28,8 +28,8 @@ public class CameraController : MonoBehaviour
             var currentDistance = AdjustCameraDistance();
             
             // 카메라 위치 설정
-            var cartesianPosition = GetCameraPosition(distance, _polarAngle, _azimuthAngle);
-            transform.position = _target.position + cartesianPosition;
+            var cartesianPosition = GetCameraPosition(currentDistance, _polarAngle, _azimuthAngle);
+            transform.position = _target.position - cartesianPosition;
             transform.LookAt(_target);
         }
     }
@@ -40,7 +40,7 @@ public class CameraController : MonoBehaviour
         
         // 카메라 초기 위치 설정
         var cartesianPosition = GetCameraPosition(distance, _polarAngle, _azimuthAngle);
-        transform.position = _target.position + cartesianPosition;
+        transform.position = _target.position - cartesianPosition;
         transform.LookAt(_target);
 
         // 마우스 이동
@@ -57,7 +57,7 @@ public class CameraController : MonoBehaviour
     {
         float b = r * Mathf.Cos(polarAngle * Mathf.Deg2Rad);
         float x = b * Mathf.Sin(azimusAngle * Mathf.Deg2Rad);
-        float y = r * Mathf.Sin(polarAngle * Mathf.Deg2Rad);
+        float y = r * Mathf.Sin(polarAngle * Mathf.Deg2Rad) * -1;
         float z = b * Mathf.Cos(azimusAngle * Mathf.Deg2Rad);
 
         return new Vector3(x, y, z);
