@@ -42,6 +42,7 @@ public class PlayerController : MonoBehaviour
         var playerStateMove = new PlayerStateMove(this, _animator, _playerInput);
         var playerStateJump = new PlayerStateJump(this, _animator, _playerInput);
         var playerStateAttack = new PlayerStateAttack(this, _animator, _playerInput);
+        var playerStateHit = new PlayerStateHit(this, _animator, _playerInput);
 
         _states = new Dictionary<EPlayerState, ICharacterState>()
         {
@@ -49,6 +50,7 @@ public class PlayerController : MonoBehaviour
             { EPlayerState.Move , playerStateMove},
             { EPlayerState.Jump , playerStateJump},
             { EPlayerState.Attack , playerStateAttack},
+            { EPlayerState.Hit , playerStateHit},
         };
         
         // 상태 초기화
@@ -75,6 +77,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.Instance.GameState != EGameState.Play)
+            return;
+        
         if (State != EPlayerState.None)
             _states[State].Update();
     }
@@ -86,6 +91,13 @@ public class PlayerController : MonoBehaviour
         if(State != EPlayerState.None) _states[State].Exit();
         State = state;
         if(State != EPlayerState.None) _states[State].Enter();
+    }
+
+    public void SetHit(int damage, Vector3 attackDirection)
+    {
+        SetState(EPlayerState.Hit);
+        _animator.SetFloat(PlayerAnimPramGHitX, attackDirection.x);
+        _animator.SetFloat(PlayerAnimPramGHitZ, attackDirection.z);
     }
 
     // 점프

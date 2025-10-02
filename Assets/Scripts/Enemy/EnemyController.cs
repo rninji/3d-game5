@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,6 +17,7 @@ public class EnemyController : MonoBehaviour
    [SerializeField] private float chaseWaitTime = 1f;
    [SerializeField] private float detectionSightAngle = 30f;
    [SerializeField] private float minimumRunDistance = 1f;
+   [SerializeField] private float attackWaitTime = 0f;
    
    private Animator _animator;
    private NavMeshAgent _navMeshAgent;
@@ -34,6 +36,7 @@ public class EnemyController : MonoBehaviour
    public float ChaseWaitTime => chaseWaitTime;
    public float DetectionSightAngle => detectionSightAngle;
    public float MinimumRunDistance => minimumRunDistance;
+   public float AttackWaitTime => attackWaitTime;
 
    private void Awake()
    {
@@ -54,6 +57,7 @@ public class EnemyController : MonoBehaviour
       var enemyStatePatrol = new EnemyStatePatrol(this, _animator, _navMeshAgent);
       var enemyStateChase = new EnemyStateChase(this, _animator, _navMeshAgent);
       var enemyStateAttack = new EnemyStateAttack(this, _animator, _navMeshAgent);
+      var enemyStateHit= new EnemyStateHit(this, _animator, _navMeshAgent);
 
       _states = new Dictionary<EEnemyState, ICharacterState>()
       {
@@ -61,6 +65,7 @@ public class EnemyController : MonoBehaviour
          { EEnemyState.Patrol , enemyStatePatrol},
          { EEnemyState.Chase , enemyStateChase},
          { EEnemyState.Attack , enemyStateAttack},
+         { EEnemyState.Hit , enemyStateHit},
       };
         
       // 상태 초기화
@@ -69,6 +74,9 @@ public class EnemyController : MonoBehaviour
    
    private void Update()
    {
+      if (GameManager.Instance.GameState != EGameState.Play)
+         return;
+      
       if (State != EEnemyState.None)
          _states[State].Update();
    }
@@ -80,6 +88,35 @@ public class EnemyController : MonoBehaviour
       if(State != EEnemyState.None) _states[State].Exit();
       State = state;
       if(State != EEnemyState.None) _states[State].Enter();
+   }
+
+   public void SetHit(int damage, Vector3 attackDirection)
+   {
+      StartCoroutine(Knockback(attackDirection));
+      SetState(EEnemyState.Hit);
+   }
+
+   private IEnumerator Knockback(Vector3 direction)
+   {
+      Vector3 knockbackDirection = direction;
+      float knockbackDistance = 1f;
+      float knockbackDuration = 0.2f;
+      float elapsed = 0f;
+
+      Vector3 startPosition = transform.position;
+      Vector3 targetPosition = startPosition + knockbackDirection * knockbackDistance;
+      targetPosition.y = transform.position.y;
+
+      while (elapsed < knockbackDuration)
+      {
+         Vector3 lerpPosition = Vector3.Lerp(startPosition, targetPosition, elapsed / knockbackDuration);
+         lerpPosition.y = startPosition.y;
+         transform.position = lerpPosition;
+         elapsed += Time.deltaTime;
+         yield return null;
+      }
+
+      transform.position = targetPosition;
    }
 
    private void OnAnimatorMove()

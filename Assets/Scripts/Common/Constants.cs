@@ -1,8 +1,21 @@
+using System;
 using UnityEngine;
 
 public class Constants
 {
     public const float Gravity = -9.81f;
+    
+    // ---------------------------------------------
+    // GameManager
+    public enum ESceneName
+    {
+        Main, Stage01, Stage02
+    }
+
+    public enum EGameState
+    {
+        None, Play, Pause
+    }
     
     // ---------------------------------------------
     // Layer Mask
@@ -23,6 +36,9 @@ public class Constants
     public static readonly int PlayerAnimPramAttack = Animator.StringToHash("attack");
     public static readonly int PlayerAnimPramMoveSpeed = Animator.StringToHash("move_speed");
     public static readonly int PlayerAnimPramGroundDistance = Animator.StringToHash("ground_distance");
+    public static readonly int PlayerAnimPramHit = Animator.StringToHash("hit");
+    public static readonly int PlayerAnimPramGHitX = Animator.StringToHash("hit_x");
+    public static readonly int PlayerAnimPramGHitZ = Animator.StringToHash("hit_z");
 
     // ---------------------------------------------
     // Enemy 상태
@@ -41,4 +57,10 @@ public class Constants
     public static readonly int EnemyAnimPramDead = Animator.StringToHash("dead");
     public static readonly int EnemyAnimPramMoveSpeed = Animator.StringToHash("move_speed");
 
+    [Serializable]
+    public class WeaponTriggerZone
+    {
+        public Vector3 position;
+        public float radius;
+    }
 }
